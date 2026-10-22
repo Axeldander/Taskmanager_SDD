@@ -16,10 +16,10 @@
 
 ## Phase 2: Database Models
 
-- [ ] T005 [FR-02] Implement User model with unique username, password hash, and role.
-- [ ] T006 [FR-03] Implement Task model with title, description, status, assigned user, and optional deadline.
-- [ ] T007 [FR-04] Implement the user-to-task relationship and database constraints.
-- [ ] T008 [NFR-04] Test persistence and transactional rollback.
+- [x] T005 [FR-02] Implement User model with unique username, password hash, and role.
+- [x] T006 [FR-03] Implement Task model with title, description, status, assigned user, and optional deadline.
+- [x] T007 [FR-04] Implement the user-to-task relationship and database constraints.
+- [x] T008 [NFR-04] Test persistence and transactional rollback.
 
 **Deliverable:** Tested database models and persistence layer.
 
@@ -27,7 +27,7 @@
 
 - [x] T009 [FR-01] Write tests for password hashing and verification.
 - [x] T010 [FR-01] Implement Argon2id password hashing.
-- [ ] T011 [FR-01] Implement login, logout, and authentication state.
+- [x] T011 [FR-01] Implement login, logout, and authentication state.
 - [ ] T012 [FR-02] Write tests for first-launch administrator setup.
 - [ ] T013 [FR-02] Implement secure first-launch administrator creation.
 - [ ] T014 [FR-02] Test duplicate username rejection and administrator setup restrictions.
