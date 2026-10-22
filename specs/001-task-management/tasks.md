@@ -28,9 +28,9 @@
 - [x] T009 [FR-01] Write tests for password hashing and verification.
 - [x] T010 [FR-01] Implement Argon2id password hashing.
 - [x] T011 [FR-01] Implement login, logout, and authentication state.
-- [ ] T012 [FR-02] Write tests for first-launch administrator setup.
+- [x] T012 [FR-02] Write tests for first-launch administrator setup.
 - [ ] T013 [FR-02] Implement secure first-launch administrator creation.
-- [ ] T014 [FR-02] Test duplicate username rejection and administrator setup restrictions.
+- [x] T014 [FR-02] Test duplicate username rejection and administrator setup restrictions.
 
 **Deliverable:** Working authentication and secure administrator initialization.
 
