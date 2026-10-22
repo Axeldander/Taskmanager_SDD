@@ -1,0 +1,28 @@
+# Python virtual environment
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# PyCharm configuration
+.idea/
+
+# Local database
+*.db
+*.sqlite
+*.sqlite3
+
+# Secrets
+.env
+.env.*
+*.key
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Private agent files
+.myagent/private/
