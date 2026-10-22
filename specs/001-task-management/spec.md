@@ -38,7 +38,19 @@ Defines requirements, implements features, performs testing, and maintains the a
 - User accounts must have a username and password.
 - Standard users must not be able to create accounts.
 - The system must provide a secure way to initialize the first administrator account.
+### First-Launch Administrator Initialization
 
+
+- When no administrator exists, the application must display
+  the administrator setup screen.
+- The first administrator must be created using a username
+  and password of at least 12 characters.
+- Password confirmation must match.
+- The setup operation must be atomic.
+- After an administrator exists, first-launch setup must
+  no longer be available.
+- Failed initialization must not leave a partial account.
+- 
 ### FR-03: Task Creation
 - Administrators must be able to create tasks.
 - Each task must have a title and description.

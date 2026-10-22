@@ -67,6 +67,8 @@
 - [ ] T033 [FR-06] Implement task status controls.
 - [ ] T034 [FR-01] Implement logout and window navigation.
 - [ ] T035 [NFR-03] Implement validation messages and confirmation dialogs.
+- [ ] T035A [FR-02] Test the first-launch administrator
+      setup GUI, including validation and repeat-setup prevention.
 
 **Deliverable:** Complete desktop GUI connected to tested services.
 
