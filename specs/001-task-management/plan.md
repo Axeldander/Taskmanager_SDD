@@ -12,7 +12,7 @@ The application is a local-first Python desktop task management system. It suppo
 ### Technology Stack
 
 - Python 3.11+
-- PySide6 for desktop GUI
+- PySide6-Essentials for the desktop GUI (Qt Widgets)
 - SQLite for local database
 - SQLAlchemy for ORM and database transactions
 - Argon2id for password hashing

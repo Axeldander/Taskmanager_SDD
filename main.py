@@ -1,16 +1,36 @@
-# This is a sample Python script.
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import sys
+
+from PySide6.QtWidgets import QApplication, QLabel, QMainWindow
+
+from app.database.connection import (
+    create_database_engine,
+    create_session_factory,
+    initialize_database,
+)
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+def main():
+    engine = create_database_engine()
+    initialize_database(engine)
+
+    app = QApplication(sys.argv)
+
+    window = QMainWindow()
+    window.setWindowTitle("Desktop Task Manager")
+    window.resize(900, 600)
+
+    label = QLabel("Task Manager - SDD Prototype")
+    label.setStyleSheet("font-size: 24px; padding: 30px;")
+    window.setCentralWidget(label)
+
+    window.show()
+
+    exit_code = app.exec()
+
+    engine.dispose()
+    return exit_code
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+if __name__ == "__main__":
+    sys.exit(main())

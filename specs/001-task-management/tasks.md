@@ -7,10 +7,10 @@
 
 ## Phase 1: Project Setup
 
-- [ ] T001 Create modular Python application structure.
-- [ ] T002 Configure project dependencies: PySide6, SQLAlchemy, argon2-cffi, pytest, and pytest-qt.
-- [ ] T003 Configure SQLite database initialization and session management.
-- [ ] T004 Configure pytest and temporary test databases.
+- [x] T001 Create modular Python application structure.
+- [x] T002 Configure project dependencies: PySide6-Essentials, SQLAlchemy, argon2-cffi, pytest, and pytest-qt.
+- [x] T003 Configure SQLite database initialization and session management.
+- [x] T004 Configure pytest and temporary test databases.
 
 **Deliverable:** A runnable application skeleton with working database initialization.
 
