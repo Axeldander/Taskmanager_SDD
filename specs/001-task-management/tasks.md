@@ -29,17 +29,17 @@
 - [x] T010 [FR-01] Implement Argon2id password hashing.
 - [x] T011 [FR-01] Implement login, logout, and authentication state.
 - [x] T012 [FR-02] Write tests for first-launch administrator setup.
-- [ ] T013 [FR-02] Implement secure first-launch administrator creation.
+- [x] T013 [FR-02] Implement secure first-launch administrator creation.
 - [x] T014 [FR-02] Test duplicate username rejection and administrator setup restrictions.
 
 **Deliverable:** Working authentication and secure administrator initialization.
 
 ## Phase 4: User Management
 
-- [ ] T015 [FR-02] Write tests for administrator-only account creation.
-- [ ] T016 [FR-02] Implement standard-user account creation service.
-- [ ] T017 [FR-02] Implement username and password validation.
-- [ ] T018 [FR-02] Verify that standard users cannot create accounts.
+- [x] T015 [FR-02] Write tests for administrator-only account creation.
+- [x] T016 [FR-02] Implement standard-user account creation service.
+- [x] T017 [FR-02] Implement username and password validation.
+- [x] T018 [FR-02] Verify that standard users cannot create accounts.
 
 **Deliverable:** Secure administrator-controlled user management.
 
