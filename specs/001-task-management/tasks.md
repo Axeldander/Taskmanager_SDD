@@ -45,8 +45,8 @@
 
 ## Phase 5: Task Management
 
-- [ ] T019 [FR-03, FR-04] Write tests for task creation and assignment.
-- [ ] T020 [FR-03, FR-04] Implement administrator task creation and assignment.
+- [x] T019 [FR-03, FR-04] Write tests for task creation and assignment.
+- [x] T020 [FR-03, FR-04] Implement administrator task creation and assignment.
 - [ ] T021 [FR-05] Implement role-restricted task retrieval.
 - [ ] T022 [FR-06] Write tests for task status changes and ownership enforcement.
 - [ ] T023 [FR-06] Implement task status updates.
