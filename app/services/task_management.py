@@ -16,20 +16,32 @@ class TaskManagementService:
 
     def _require_admin(self, session):
         """Ensure the current user is still an administrator."""
-
         if not self.auth_service.is_admin():
             raise TaskManagementError(
                 "Only administrators can perform this operation."
             )
 
         current_user = self.auth_service.current_user
-
         admin = session.get(User, current_user.id)
 
         if admin is None or admin.role != "admin":
             raise TaskManagementError(
                 "Administrator privileges are no longer valid."
             )
+
+    def _validate_description(self, description):
+        """Require a meaningful task description."""
+        if not isinstance(description, str):
+            raise TaskManagementError(
+                "Task description must be a string."
+            )
+
+        if not description.strip():
+            raise TaskManagementError(
+                "Task description cannot be empty."
+            )
+
+        return description
 
     def create_task(
         self,
@@ -39,7 +51,6 @@ class TaskManagementService:
         deadline=None,
     ) -> int:
         """Create a task assigned to exactly one standard user."""
-
         with self.session_factory() as session:
             self._require_admin(session)
 
@@ -60,10 +71,7 @@ class TaskManagementService:
                     "Task title cannot exceed 200 characters."
                 )
 
-            if not isinstance(description, str):
-                raise TaskManagementError(
-                    "Task description must be a string."
-                )
+            description = self._validate_description(description)
 
             if (
                 isinstance(assigned_user_id, bool)
@@ -106,7 +114,6 @@ class TaskManagementService:
                 raise TaskManagementError(
                     "Task creation failed."
                 ) from exc
-
 
     def _require_authenticated_user(self, session):
         current_user = self.auth_service.current_user
@@ -197,7 +204,6 @@ class TaskManagementService:
 
     def edit_task(self, task_id: int, title=None, description=None):
         """Allow administrators to edit task details."""
-
         with self.session_factory() as session:
             self._require_admin(session)
 
@@ -227,18 +233,14 @@ class TaskManagementService:
                 task.title = title
 
             if description is not None:
-                if not isinstance(description, str):
-                    raise TaskManagementError(
-                        "Task description must be a string."
-                    )
-
-                task.description = description
+                task.description = self._validate_description(
+                    description
+                )
 
             session.commit()
 
     def reassign_task(self, task_id: int, new_user_id: int):
         """Allow administrators to reassign a task."""
-
         with self.session_factory() as session:
             self._require_admin(session)
 
@@ -269,9 +271,54 @@ class TaskManagementService:
             task.assigned_user_id = new_user_id
             session.commit()
 
+    def update_task_details(
+        self,
+        task_id,
+        title,
+        description,
+        assigned_user_id,
+        deadline=None,
+    ):
+        """Update task details and assignment in one transaction."""
+        with self.session_factory() as session:
+            self._require_admin(session)
+
+            if not isinstance(title, str) or not 1 <= len(title.strip()) <= 200:
+                raise TaskManagementError(
+                    "Task title must contain 1 to 200 characters."
+                )
+
+            description = self._validate_description(description)
+
+            task = session.get(Task, task_id)
+
+            if task is None:
+                raise TaskManagementError("Task not found.")
+
+            if (
+                isinstance(assigned_user_id, bool)
+                or not isinstance(assigned_user_id, int)
+            ):
+                raise TaskManagementError(
+                    "Please select a valid standard user."
+                )
+
+            assignee = session.get(User, assigned_user_id)
+
+            if assignee is None or assignee.role != "user":
+                raise TaskManagementError(
+                    "Please select a valid standard user."
+                )
+
+            task.title = title.strip()
+            task.description = description
+            task.assigned_user_id = assigned_user_id
+            task.deadline = deadline
+
+            session.commit()
+
     def delete_task(self, task_id: int):
         """Allow administrators to delete a task."""
-
         with self.session_factory() as session:
             self._require_admin(session)
 

@@ -172,6 +172,12 @@ class TaskDialog(QDialog):
             )
             return
 
+        if not description.strip():
+            self.error_label.setText(
+                "Task description cannot be empty."
+            )
+            return
+
         if assigned_user_id is None:
             self.error_label.setText(
                 "Select a user."

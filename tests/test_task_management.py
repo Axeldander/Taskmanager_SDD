@@ -1,4 +1,3 @@
-
 import pytest
 
 from sqlalchemy import select
@@ -396,3 +395,120 @@ def test_cannot_edit_nonexistent_task(environment):
 
     with pytest.raises(TaskManagementError):
         management.edit_task(999999, title="Missing task")
+
+def test_update_task_details_is_atomic(tmp_path):
+    from sqlalchemy import select
+
+    from app.database.connection import (
+        create_database_engine,
+        create_session_factory,
+        initialize_database,
+    )
+    from app.models.task import Task
+    from app.services.auth import AuthenticationService
+    from app.services.setup import SetupService
+    from app.services.user_management import UserManagementService
+    from app.services.task_management import (
+        TaskManagementService,
+        TaskManagementError,
+    )
+
+    engine = create_database_engine(
+        f"sqlite:///{(tmp_path / 'atomic_edit.db').as_posix()}"
+    )
+    initialize_database(engine)
+    session_factory = create_session_factory(engine)
+
+    auth = AuthenticationService(session_factory)
+    setup = SetupService(session_factory)
+    setup.create_initial_admin("admin", "AdminPassword123!")
+    auth.login("admin", "AdminPassword123!")
+
+    users = UserManagementService(session_factory, auth)
+    alice_id = users.create_user("alice", "AlicePassword123!")
+    bob_id = users.create_user("bob", "BobPassword123!")
+
+    tasks = TaskManagementService(session_factory, auth)
+
+    task_id = tasks.create_task(
+        "Original title", "Original description", alice_id
+    )
+
+    tasks.update_task_details(
+        task_id,
+        title="Updated title",
+        description="Updated description",
+        assigned_user_id=bob_id,
+    )
+
+    with session_factory() as session:
+        task = session.get(Task, task_id)
+        assert task.title == "Updated title"
+        assert task.description == "Updated description"
+        assert task.assigned_user_id == bob_id
+
+    try:
+        tasks.update_task_details(
+            task_id,
+            title="Should not be saved",
+            description="Should not be saved",
+            assigned_user_id=999999,
+        )
+    except TaskManagementError:
+        pass
+    else:
+        raise AssertionError("Invalid reassignment should fail")
+
+    with session_factory() as session:
+        task = session.get(Task, task_id)
+        assert task.title == "Updated title"
+        assert task.description == "Updated description"
+        assert task.assigned_user_id == bob_id
+
+    engine.dispose()
+
+
+@pytest.mark.parametrize("description", ["", "   ", "\n\t"])
+def test_create_task_rejects_blank_description(environment, description):
+    auth, management, session_factory, ids = environment
+    auth.login("admin", "AdminPassword123!")
+
+    with pytest.raises(TaskManagementError, match="description cannot be empty"):
+        management.create_task("Invalid task", description, ids["alice"])
+
+    with session_factory() as session:
+        assert session.scalar(select(Task).where(Task.title == "Invalid task")) is None
+
+
+def test_edit_task_rejects_blank_description_without_saving(environment):
+    auth, management, session_factory, ids = environment
+    auth.login("admin", "AdminPassword123!")
+    task_id = management.create_task("Original title", "Original description", ids["alice"])
+
+    with pytest.raises(TaskManagementError, match="description cannot be empty"):
+        management.edit_task(task_id, title="Changed title", description="   ")
+
+    with session_factory() as session:
+        task = session.get(Task, task_id)
+        assert task.title == "Original title"
+        assert task.description == "Original description"
+
+
+def test_update_task_details_rejects_blank_description_atomically(environment):
+    auth, management, session_factory, ids = environment
+    auth.login("admin", "AdminPassword123!")
+    task_id = management.create_task("Original title", "Original description", ids["alice"])
+
+    with pytest.raises(TaskManagementError, match="description cannot be empty"):
+        management.update_task_details(
+            task_id,
+            title="Changed title",
+            description="   ",
+            assigned_user_id=ids["bob"],
+        )
+
+    with session_factory() as session:
+        task = session.get(Task, task_id)
+        assert task.title == "Original title"
+        assert task.description == "Original description"
+        assert task.assigned_user_id == ids["alice"]

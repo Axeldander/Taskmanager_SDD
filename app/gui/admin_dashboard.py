@@ -19,6 +19,7 @@ class AdminDashboard(QWidget):
     edit_task_requested = Signal(int)
     delete_task_requested = Signal(int)
     refresh_requested = Signal()
+    logout_requested = Signal()
 
     def __init__(self):
         super().__init__()
@@ -53,12 +54,15 @@ class AdminDashboard(QWidget):
         self.edit_task_button = QPushButton("Edit Task")
         self.delete_task_button = QPushButton("Delete Task")
         self.refresh_button = QPushButton("Refresh")
+        self.logout_button = QPushButton("Log Out")
+
 
         button_layout.addWidget(self.create_user_button)
         button_layout.addWidget(self.create_task_button)
         button_layout.addWidget(self.edit_task_button)
         button_layout.addWidget(self.delete_task_button)
         button_layout.addWidget(self.refresh_button)
+        button_layout.addWidget(self.logout_button)
 
         layout.addLayout(button_layout)
 
@@ -104,6 +108,9 @@ class AdminDashboard(QWidget):
         )
         self.refresh_button.clicked.connect(
             self.refresh_requested.emit
+        )
+        self.logout_button.clicked.connect(
+            self.logout_requested.emit
         )
 
     def selected_task_id(self):

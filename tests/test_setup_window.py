@@ -80,3 +80,69 @@ def test_setup_emits_valid_credentials(qtbot):
         "AdminPassword123!",
     ]
 
+
+def test_setup_rejects_empty_username(qtbot):
+    window = SetupWindow()
+    qtbot.addWidget(window)
+
+    window.username_input.setText("   ")
+    window.password_input.setText("AdminPassword123!")
+    window.confirm_password_input.setText(
+        "AdminPassword123!"
+    )
+
+    emitted_credentials = []
+    window.setup_requested.connect(
+        lambda username, password: emitted_credentials.append(
+            (username, password)
+        )
+    )
+
+    window.create_button.click()
+
+    assert window.error_label.text() != ""
+    assert emitted_credentials == []
+
+
+def test_setup_rejects_empty_password(qtbot):
+    window = SetupWindow()
+    qtbot.addWidget(window)
+
+    window.username_input.setText("admin")
+    window.password_input.setText("")
+    window.confirm_password_input.setText("")
+
+    emitted_credentials = []
+    window.setup_requested.connect(
+        lambda username, password: emitted_credentials.append(
+            (username, password)
+        )
+    )
+
+    window.create_button.click()
+
+    assert window.error_label.text() != ""
+    assert emitted_credentials == []
+
+
+def test_setup_invalid_confirmation_does_not_emit_signal(qtbot):
+    window = SetupWindow()
+    qtbot.addWidget(window)
+
+    window.username_input.setText("admin")
+    window.password_input.setText("AdminPassword123!")
+    window.confirm_password_input.setText(
+        "IncorrectPassword123!"
+    )
+
+    emitted_credentials = []
+    window.setup_requested.connect(
+        lambda username, password: emitted_credentials.append(
+            (username, password)
+        )
+    )
+
+    window.create_button.click()
+
+    assert window.error_label.text() == "Passwords do not match."
+    assert emitted_credentials == []

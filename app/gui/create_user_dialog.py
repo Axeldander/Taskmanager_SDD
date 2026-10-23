@@ -66,7 +66,7 @@ class CreateUserDialog(QDialog):
     def _handle_create(self):
         username = self.username_input.text().strip()
         password = self.password_input.text()
-        confirmation = self.confirm_password_input.text()
+        confirm_password = self.confirm_password_input.text()
 
         if not username:
             self.error_label.setText(
@@ -80,13 +80,25 @@ class CreateUserDialog(QDialog):
             )
             return
 
-        if password != confirmation:
+        if password != confirm_password:
             self.error_label.setText(
                 "Passwords do not match."
             )
             return
 
         self.error_label.clear()
+
+        if not username:
+            self.show_error("Please enter a username.")
+            return
+
+        if not password:
+            self.show_error("Please enter a password.")
+            return
+
+        if password != confirm_password:
+            self.show_error("Passwords do not match.")
+            return
         self.create_user_requested.emit(username, password)
 
     def show_error(self, message: str):

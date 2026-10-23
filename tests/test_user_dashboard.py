@@ -7,8 +7,9 @@ def test_user_dashboard_has_required_controls(qtbot):
     qtbot.addWidget(window)
 
     assert window.windowTitle() == "Task Manager - My Tasks"
-    assert window.task_table.columnCount() == 4
+    assert window.task_table.columnCount() == 5
     assert window.refresh_button.text() == "Refresh"
+
 
 
 def test_user_dashboard_displays_assigned_tasks(qtbot):
@@ -19,12 +20,14 @@ def test_user_dashboard_displays_assigned_tasks(qtbot):
         {
             "id": 1,
             "title": "Prepare report",
+            "description": "Complete the project report",
             "status": "to_do",
             "deadline": None,
         },
         {
             "id": 2,
             "title": "Review documents",
+            "description": "Review the submitted documents",
             "status": "in_progress",
             "deadline": "2026-12-15",
         },
@@ -33,9 +36,24 @@ def test_user_dashboard_displays_assigned_tasks(qtbot):
     window.display_tasks(tasks)
 
     assert window.task_table.rowCount() == 2
+
     assert window.task_table.item(0, 1).text() == "Prepare report"
-    assert window.task_table.item(1, 2).text() == "in_progress"
-    assert window.task_table.item(1, 3).text() == "2026-12-15"
+    assert (
+        window.task_table.item(0, 2).text()
+        == "Complete the project report"
+    )
+
+    assert (
+        window.task_table.item(1, 1).text()
+        == "Review documents"
+    )
+    assert (
+        window.task_table.item(1, 2).text()
+        == "Review the submitted documents"
+    )
+    assert window.task_table.item(1, 3).text() == "in_progress"
+    assert window.task_table.item(1, 4).text() == "2026-12-15"
+
 
 
 def test_user_dashboard_has_no_admin_controls(qtbot):

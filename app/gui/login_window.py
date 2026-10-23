@@ -40,6 +40,11 @@ class LoginWindow(QWidget):
         )
         layout.addWidget(self.password_input)
 
+        self.error_label = QLabel("")
+        self.error_label.setStyleSheet("color: red;")
+        self.error_label.setWordWrap(True)
+        layout.addWidget(self.error_label)
+
         self.login_button = QPushButton("Log In")
         self.login_button.clicked.connect(
             self._handle_login
@@ -49,8 +54,21 @@ class LoginWindow(QWidget):
         self.setLayout(layout)
 
     def _handle_login(self):
+
         username = self.username_input.text().strip()
         password = self.password_input.text()
 
+        self.error_label.clear()
+
+        if not username:
+            self.show_error("Please enter your username.")
+            return
+
+        if not password:
+            self.show_error("Please enter your password.")
+            return
+
         self.login_requested.emit(username, password)
 
+    def show_error(self, message: str):
+        self.error_label.setText(message)

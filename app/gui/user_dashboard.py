@@ -1,3 +1,4 @@
+
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QWidget,
@@ -16,12 +17,13 @@ from PySide6.QtWidgets import (
 class UserDashboard(QWidget):
     refresh_requested = Signal()
     status_update_requested = Signal(int, str)
+    logout_requested = Signal()
 
     def __init__(self):
         super().__init__()
 
         self.setWindowTitle("Task Manager - My Tasks")
-        self.setMinimumSize(750, 450)
+        self.setMinimumSize(950, 450)
 
         layout = QVBoxLayout(self)
 
@@ -37,17 +39,25 @@ class UserDashboard(QWidget):
         layout.addWidget(description)
 
         self.refresh_button = QPushButton("Refresh")
+        self.logout_button = QPushButton("Log Out")
+
         self.refresh_button.clicked.connect(
             self.refresh_requested.emit
         )
+        self.logout_button.clicked.connect(
+            self.logout_requested.emit
+        )
+
         layout.addWidget(self.refresh_button)
+        layout.addWidget(self.logout_button)
 
         self.task_table = QTableWidget()
-        self.task_table.setColumnCount(4)
+        self.task_table.setColumnCount(5)
         self.task_table.setHorizontalHeaderLabels(
             [
                 "ID",
                 "Title",
+                "Description",
                 "Status",
                 "Deadline",
             ]
@@ -105,7 +115,6 @@ class UserDashboard(QWidget):
             self._sync_selected_status
         )
 
-
     def display_tasks(self, tasks):
         """Display tasks assigned to the logged-in user."""
         self.task_table.setRowCount(len(tasks))
@@ -116,6 +125,7 @@ class UserDashboard(QWidget):
             values = [
                 str(task["id"]),
                 task["title"],
+                task.get("description", ""),
                 task["status"],
                 str(deadline) if deadline is not None else "",
             ]
@@ -124,7 +134,7 @@ class UserDashboard(QWidget):
                 self.task_table.setItem(
                     row,
                     column,
-                    QTableWidgetItem(value),
+                    QTableWidgetItem(str(value)),
                 )
 
     def selected_task_id(self):
@@ -143,13 +153,13 @@ class UserDashboard(QWidget):
 
     def _sync_selected_status(self):
         """Match the dropdown to the selected task."""
-
         row = self.task_table.currentRow()
 
         if row < 0:
             return
 
-        status_item = self.task_table.item(row, 2)
+        # Status is column 3 because Description is column 2.
+        status_item = self.task_table.item(row, 3)
 
         if status_item is None:
             return
@@ -163,7 +173,6 @@ class UserDashboard(QWidget):
 
     def _request_status_update(self):
         """Request a status change for the selected task."""
-
         task_id = self.selected_task_id()
 
         if task_id is None:
@@ -179,5 +188,3 @@ class UserDashboard(QWidget):
         self.status_update_requested.emit(
             task_id, new_status
         )
-
-

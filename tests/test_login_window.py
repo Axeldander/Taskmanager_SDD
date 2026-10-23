@@ -38,3 +38,19 @@ def test_login_button_emits_credentials(qtbot):
         "alice",
         "AlicePassword123!",
     ]
+def test_login_requires_username_and_password(qtbot):
+    from app.gui.login_window import LoginWindow
+
+    window = LoginWindow()
+    qtbot.addWidget(window)
+
+    window.login_button.click()
+    assert window.error_label.text() == (
+        "Please enter your username."
+    )
+
+    window.username_input.setText("admin")
+    window.login_button.click()
+    assert window.error_label.text() == (
+        "Please enter your password."
+    )

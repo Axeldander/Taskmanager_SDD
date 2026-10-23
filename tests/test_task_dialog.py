@@ -59,6 +59,9 @@ def test_dialog_rejects_missing_assignee(qtbot):
     qtbot.addWidget(dialog)
 
     dialog.title_input.setText("Prepare report")
+    dialog.description_input.setPlainText(
+        "Prepare the coursework report"
+    )
     dialog.save_button.click()
 
     assert dialog.error_label.text() == "Select a user."
@@ -115,6 +118,9 @@ def test_dialog_emits_optional_deadline(qtbot):
 
     dialog.set_users([(2, "alice")])
     dialog.title_input.setText("Deadline task")
+    dialog.description_input.setPlainText(
+        "Complete the task before the deadline"
+    )
     dialog.deadline_checkbox.setChecked(True)
     dialog.deadline_input.setDate(QDate(2026, 12, 15))
 
@@ -134,3 +140,22 @@ def test_cancel_rejects_dialog(qtbot):
         dialog.rejected, timeout=1000
     ):
         dialog.cancel_button.click()
+
+
+def test_task_dialog_rejects_empty_description(qtbot):
+    dialog = TaskDialog()
+    qtbot.addWidget(dialog)
+
+    dialog.set_users([(1, "alice")])
+    dialog.title_input.setText("Prepare report")
+    dialog.description_input.setPlainText("   ")
+
+    emitted_tasks = []
+    dialog.task_saved.connect(emitted_tasks.append)
+
+    dialog.save_button.click()
+
+    assert dialog.error_label.text() == (
+        "Task description cannot be empty."
+    )
+    assert emitted_tasks == []
