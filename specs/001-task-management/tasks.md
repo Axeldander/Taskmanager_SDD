@@ -63,7 +63,7 @@
 - [x] T029 [FR-07] Implement administrator dashboard.
 - [x] T030 [FR-02] Implement create-user dialog.
 - [x] T031 [FR-03, FR-04, FR-08] Implement create/edit/assign task dialog.
-- [ ] T032 [FR-05] Implement standard-user dashboard.
+- [x] T032 [FR-05] Implement standard-user dashboard.
 - [ ] T033 [FR-06] Implement task status controls.
 - [ ] T034 [FR-01] Implement logout and window navigation.
 - [ ] T035 [NFR-03] Implement validation messages and confirmation dialogs.
