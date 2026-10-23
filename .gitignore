@@ -26,3 +26,17 @@ htmlcov/
 
 # Private agent files
 .myagent/private/
+
+*.py[cod]
+
+.pytest_cache/
+
+.idea/
+
+*.db
+
+*.db-journal
+
+*.db-wal
+
+*.db-shm
