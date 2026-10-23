@@ -60,8 +60,8 @@
 
 - [x] T027 [FR-01] Implement PySide6 login window.
 - [x] T028 [FR-02] Implement first-launch administrator setup window.
-- [ ] T029 [FR-07] Implement administrator dashboard.
-- [ ] T030 [FR-02] Implement create-user dialog.
+- [x] T029 [FR-07] Implement administrator dashboard.
+- [x] T030 [FR-02] Implement create-user dialog.
 - [ ] T031 [FR-03, FR-04, FR-08] Implement create/edit/assign task dialog.
 - [ ] T032 [FR-05] Implement standard-user dashboard.
 - [ ] T033 [FR-06] Implement task status controls.
