@@ -58,7 +58,7 @@
 
 ## Phase 6: Desktop Interface
 
-- [ ] T027 [FR-01] Implement PySide6 login window.
+- [x] T027 [FR-01] Implement PySide6 login window.
 - [ ] T028 [FR-02] Implement first-launch administrator setup window.
 - [ ] T029 [FR-07] Implement administrator dashboard.
 - [ ] T030 [FR-02] Implement create-user dialog.
