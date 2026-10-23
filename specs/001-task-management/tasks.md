@@ -47,10 +47,10 @@
 
 - [x] T019 [FR-03, FR-04] Write tests for task creation and assignment.
 - [x] T020 [FR-03, FR-04] Implement administrator task creation and assignment.
-- [ ] T021 [FR-05] Implement role-restricted task retrieval.
-- [ ] T022 [FR-06] Write tests for task status changes and ownership enforcement.
-- [ ] T023 [FR-06] Implement task status updates.
-- [ ] T024 [FR-07] Implement administrator task monitoring.
+- [x] T021 [FR-05] Implement role-restricted task retrieval.
+- [x] T022 [FR-06] Write tests for task status changes and ownership enforcement.
+- [x] T023 [FR-06] Implement task status updates.
+- [x] T024 [FR-07] Implement administrator task monitoring.
 - [ ] T025 [FR-08] Implement task editing, reassignment, and deletion.
 - [ ] T026 [FR-05, FR-06] Test unauthorized task access and modification.
 

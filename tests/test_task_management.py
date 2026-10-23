@@ -46,20 +46,127 @@ def environment(tmp_path):
         session.add_all([admin, alice, bob])
         session.commit()
 
-        alice_id = alice.id
-        bob_id = bob.id
-        admin_id = admin.id
+        ids = {
+            "admin": admin.id,
+            "alice": alice.id,
+            "bob": bob.id,
+        }
 
     auth = AuthenticationService(session_factory)
     management = TaskManagementService(session_factory, auth)
 
-    yield auth, management, session_factory, {
-        "admin": admin_id,
-        "alice": alice_id,
-        "bob": bob_id,
-    }
+    yield auth, management, session_factory, ids
 
     engine.dispose()
+
+def test_admin_can_view_all_tasks(environment):
+    auth, management, _, ids = environment
+
+    auth.login("admin", "AdminPassword123!")
+
+    management.create_task("Alice task", "For Alice", ids["alice"])
+    management.create_task("Bob task", "For Bob", ids["bob"])
+
+    tasks = management.get_tasks()
+
+    assert len(tasks) == 2
+
+
+def test_user_sees_only_assigned_tasks(environment):
+    auth, management, _, ids = environment
+
+    auth.login("admin", "AdminPassword123!")
+
+    management.create_task("Alice task", "For Alice", ids["alice"])
+    management.create_task("Bob task", "For Bob", ids["bob"])
+
+    auth.login("alice", "AlicePassword123!")
+
+    tasks = management.get_tasks()
+
+    assert len(tasks) == 1
+    assert tasks[0].title == "Alice task"
+
+
+def test_logged_out_user_cannot_view_tasks(environment):
+    _, management, _, _ = environment
+
+    with pytest.raises(TaskManagementError):
+        management.get_tasks()
+
+
+def test_user_can_update_own_task_status(environment):
+    auth, management, session_factory, ids = environment
+
+    auth.login("admin", "AdminPassword123!")
+
+    task_id = management.create_task(
+        "Alice task", "For Alice", ids["alice"]
+    )
+
+    auth.login("alice", "AlicePassword123!")
+
+    management.update_status(task_id, "in_progress")
+
+    with session_factory() as session:
+        task = session.get(Task, task_id)
+        assert task.status == "in_progress"
+
+
+def test_user_cannot_update_another_users_task(environment):
+    auth, management, _, ids = environment
+
+    auth.login("admin", "AdminPassword123!")
+
+    task_id = management.create_task(
+        "Bob task", "For Bob", ids["bob"]
+    )
+
+    auth.login("alice", "AlicePassword123!")
+
+    with pytest.raises(TaskManagementError):
+        management.update_status(task_id, "completed")
+
+
+def test_invalid_task_status_is_rejected(environment):
+    auth, management, _, ids = environment
+
+    auth.login("admin", "AdminPassword123!")
+
+    task_id = management.create_task(
+        "Alice task", "For Alice", ids["alice"]
+    )
+
+    auth.login("alice", "AlicePassword123!")
+
+    with pytest.raises(TaskManagementError):
+        management.update_status(task_id, "invalid_status")
+
+
+def test_admin_can_monitor_task_statuses(environment):
+    auth, management, _, ids = environment
+
+    auth.login("admin", "AdminPassword123!")
+
+    first_id = management.create_task(
+        "Task one", "First", ids["alice"]
+    )
+    management.create_task(
+        "Task two", "Second", ids["bob"]
+    )
+
+    auth.login("alice", "AlicePassword123!")
+    management.update_status(first_id, "completed")
+
+    auth.login("admin", "AdminPassword123!")
+
+    summary = management.get_status_summary()
+
+    assert summary == {
+        "to_do": 1,
+        "in_progress": 0,
+        "completed": 1,
+    }
 
 
 def test_admin_can_create_and_assign_task(environment):

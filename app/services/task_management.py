@@ -1,4 +1,5 @@
 
+from sqlalchemy import select, func
 from sqlalchemy.exc import IntegrityError
 
 from app.models import Task, User
@@ -105,3 +106,91 @@ class TaskManagementService:
                 raise TaskManagementError(
                     "Task creation failed."
                 ) from exc
+
+
+    def _require_authenticated_user(self, session):
+        current_user = self.auth_service.current_user
+
+        if current_user is None:
+            raise TaskManagementError("You must be logged in.")
+
+        user = session.get(User, current_user.id)
+
+        if user is None or user.role != current_user.role:
+            raise TaskManagementError(
+                "Authentication is no longer valid."
+            )
+
+        if user.role not in ("admin", "user"):
+            raise TaskManagementError(
+                "Unrecognized account role."
+            )
+
+        return user
+
+    def get_tasks(self):
+        with self.session_factory() as session:
+            user = self._require_authenticated_user(session)
+
+            query = select(Task).order_by(Task.id)
+
+            if user.role == "user":
+                query = query.where(
+                    Task.assigned_user_id == user.id
+                )
+
+            return list(session.scalars(query).all())
+
+    def update_status(self, task_id: int, new_status: str):
+        allowed_statuses = {
+            "to_do",
+            "in_progress",
+            "completed",
+        }
+
+        with self.session_factory() as session:
+            user = self._require_authenticated_user(session)
+
+            if user.role != "user":
+                raise TaskManagementError(
+                    "Only standard users can update task status."
+                )
+
+            if (
+                not isinstance(new_status, str)
+                or new_status not in allowed_statuses
+            ):
+                raise TaskManagementError("Invalid task status.")
+
+            task = session.get(Task, task_id)
+
+            if task is None:
+                raise TaskManagementError("Task does not exist.")
+
+            if task.assigned_user_id != user.id:
+                raise TaskManagementError(
+                    "You cannot modify another user's task."
+                )
+
+            task.status = new_status
+            session.commit()
+
+    def get_status_summary(self):
+        with self.session_factory() as session:
+            self._require_admin(session)
+
+            results = session.execute(
+                select(Task.status, func.count(Task.id))
+                .group_by(Task.status)
+            ).all()
+
+            summary = {
+                "to_do": 0,
+                "in_progress": 0,
+                "completed": 0,
+            }
+
+            for status, count in results:
+                summary[status] = count
+
+            return summary
