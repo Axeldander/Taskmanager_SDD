@@ -64,7 +64,7 @@
 - [x] T030 [FR-02] Implement create-user dialog.
 - [x] T031 [FR-03, FR-04, FR-08] Implement create/edit/assign task dialog.
 - [x] T032 [FR-05] Implement standard-user dashboard.
-- [ ] T033 [FR-06] Implement task status controls.
+- [x] T033 [FR-06] Implement task status controls.
 - [ ] T034 [FR-01] Implement logout and window navigation.
 - [ ] T035 [NFR-03] Implement validation messages and confirmation dialogs.
 - [ ] T035A [FR-02] Test the first-launch administrator

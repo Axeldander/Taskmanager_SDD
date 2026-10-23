@@ -56,3 +56,67 @@ def test_user_dashboard_refresh_signal(qtbot):
         window.refresh_requested, timeout=1000
     ):
         window.refresh_button.click()
+
+def test_user_dashboard_has_status_controls(qtbot):
+    window = UserDashboard()
+    qtbot.addWidget(window)
+
+    assert window.status_combo.count() == 3
+    assert window.status_combo.itemData(0) == "to_do"
+    assert window.status_combo.itemData(1) == "in_progress"
+    assert window.status_combo.itemData(2) == "completed"
+    assert window.update_status_button.text() == "Update Status"
+
+
+def test_user_can_request_status_update(qtbot):
+    window = UserDashboard()
+    qtbot.addWidget(window)
+
+    window.display_tasks([
+        {
+            "id": 10,
+            "title": "Prepare report",
+            "status": "to_do",
+            "deadline": None,
+        }
+    ])
+
+    window.task_table.selectRow(0)
+    window.status_combo.setCurrentIndex(1)
+
+    with qtbot.waitSignal(
+        window.status_update_requested, timeout=1000
+    ) as blocker:
+        window.update_status_button.click()
+
+    assert blocker.args == [10, "in_progress"]
+
+
+def test_status_update_requires_selected_task(qtbot):
+    window = UserDashboard()
+    qtbot.addWidget(window)
+
+    window.update_status_button.click()
+
+    assert (
+        window.error_label.text()
+        == "Please select a task."
+    )
+
+
+def test_status_control_matches_selected_task(qtbot):
+    window = UserDashboard()
+    qtbot.addWidget(window)
+
+    window.display_tasks([
+        {
+            "id": 5,
+            "title": "Finished task",
+            "status": "completed",
+            "deadline": None,
+        }
+    ])
+
+    window.task_table.selectRow(0)
+
+    assert window.status_combo.currentData() == "completed"
