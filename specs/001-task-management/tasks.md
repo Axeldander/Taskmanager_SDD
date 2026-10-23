@@ -74,15 +74,15 @@
 
 ## Phase 7: Verification and Validation
 
-- [ ] T036 Run all unit tests.
-- [ ] T037 Run database integration tests.
-- [ ] T038 Run GUI functional tests.
-- [ ] T039 Verify every functional requirement against its acceptance criteria.
-- [ ] T040 [NFR-01] Benchmark dashboard loading with 1,000 tasks.
-- [ ] T041 [NFR-02] Audit password handling and authorization.
-- [ ] T042 [NFR-04] Test persistence after restarting the application.
-- [ ] T043 [NFR-05] Test offline operation.
-- [ ] T044 Document defects, resolutions, and test evidence.
+- [x] T036 Run all unit tests.
+- [x] T037 Run database integration tests.
+- [x] T038 Run GUI functional tests.
+- [x] T039 Verify every functional requirement against its acceptance criteria.
+- [x] T040 [NFR-01] Benchmark dashboard loading with 1,000 tasks.
+- [x] T041 [NFR-02] Audit password handling and authorization.
+- [x] T042 [NFR-04] Test persistence after restarting the application.
+- [x] T043 [NFR-05] Test offline operation.
+- [x] T044 Document defects, resolutions, and test evidence.
 
 **Deliverable:** Verified application with test results and an audit log.
 

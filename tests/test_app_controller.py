@@ -955,3 +955,158 @@ def test_initial_admin_setup_cannot_be_repeated(qtbot, tmp_path):
 
     controller.shutdown()
 
+
+def test_admin_refresh_shows_latest_user_task_status(qtbot, tmp_path):
+    controller = AppController(
+        database_url=(
+            f"sqlite:///{(tmp_path / 'admin_refresh.db').as_posix()}"
+        )
+    )
+
+    controller.setup_service.create_initial_admin(
+        "admin", "AdminPassword123!"
+    )
+
+    controller.auth_service.login(
+        "admin", "AdminPassword123!"
+    )
+
+    alice_id = controller.user_management_service.create_user(
+        "alice", "AlicePassword123!"
+    )
+
+    controller.task_service.create_task(
+        "Prepare report",
+        "Finish the project report",
+        alice_id,
+    )
+
+    # Administrator initially sees the task as To Do.
+    controller.auth_service.logout()
+    controller.start()
+
+    login = controller.current_window
+    login.username_input.setText("admin")
+    login.password_input.setText("AdminPassword123!")
+    login.login_button.click()
+
+    admin_dashboard = controller.current_window
+    assert admin_dashboard.task_table.item(0, 2).text() == "to_do"
+
+    # Log out and update the task as its assigned user.
+    admin_dashboard.logout_button.click()
+
+    login = controller.current_window
+    login.username_input.setText("alice")
+    login.password_input.setText("AlicePassword123!")
+    login.login_button.click()
+
+    user_dashboard = controller.current_window
+    user_dashboard.task_table.selectRow(0)
+    user_dashboard.status_combo.setCurrentIndex(1)
+    user_dashboard.update_status_button.click()
+
+    assert (
+        user_dashboard.task_table.item(0, 3).text()
+        == "in_progress"
+    )
+
+    # Return to the administrator dashboard and refresh.
+    user_dashboard.logout_button.click()
+
+    login = controller.current_window
+    login.username_input.setText("admin")
+    login.password_input.setText("AdminPassword123!")
+    login.login_button.click()
+
+    admin_dashboard = controller.current_window
+    admin_dashboard.refresh_button.click()
+
+    assert (
+        admin_dashboard.task_table.item(0, 2).text()
+        == "in_progress"
+    )
+    assert admin_dashboard.progress_count.text() == (
+        "In Progress: 1"
+    )
+
+    controller.shutdown()
+
+def test_task_status_persists_after_application_restart(qtbot, tmp_path):
+    database_url = (
+        f"sqlite:///{(tmp_path / 'restart_status.db').as_posix()}"
+    )
+
+    # First application instance: create accounts and a task.
+    first_controller = AppController(
+        database_url=database_url
+    )
+
+    first_controller.setup_service.create_initial_admin(
+        "admin", "AdminPassword123!"
+    )
+
+    first_controller.auth_service.login(
+        "admin", "AdminPassword123!"
+    )
+
+    alice_id = first_controller.user_management_service.create_user(
+        "alice", "AlicePassword123!"
+    )
+
+    task_id = first_controller.task_service.create_task(
+        "Prepare report",
+        "Finish the project report",
+        alice_id,
+    )
+
+    first_controller.auth_service.logout()
+    first_controller.start()
+
+    # Alice logs in and changes the task status.
+    login = first_controller.current_window
+    login.username_input.setText("alice")
+    login.password_input.setText("AlicePassword123!")
+    login.login_button.click()
+
+    dashboard = first_controller.current_window
+    dashboard.task_table.selectRow(0)
+    dashboard.status_combo.setCurrentIndex(2)
+    dashboard.update_status_button.click()
+
+    assert dashboard.task_table.item(0, 3).text() == "completed"
+
+    # Close the application and dispose of its database engine.
+    first_controller.shutdown()
+
+    # Simulate a restart with a completely new controller instance.
+    second_controller = AppController(
+        database_url=database_url
+    )
+
+    second_controller.start()
+
+    assert second_controller.current_window.windowTitle() == (
+        "Task Manager - Login"
+    )
+
+    # Alice logs in again and sees the persisted status.
+    login = second_controller.current_window
+    login.username_input.setText("alice")
+    login.password_input.setText("AlicePassword123!")
+    login.login_button.click()
+
+    dashboard = second_controller.current_window
+
+    assert dashboard.task_table.rowCount() == 1
+    assert dashboard.task_table.item(0, 1).text() == (
+        "Prepare report"
+    )
+    assert dashboard.task_table.item(0, 2).text() == (
+        "Finish the project report"
+    )
+    assert dashboard.task_table.item(0, 3).text() == (
+        "completed"
+    )
+
+    second_controller.shutdown()
