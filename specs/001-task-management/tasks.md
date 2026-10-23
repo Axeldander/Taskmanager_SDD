@@ -62,7 +62,7 @@
 - [x] T028 [FR-02] Implement first-launch administrator setup window.
 - [x] T029 [FR-07] Implement administrator dashboard.
 - [x] T030 [FR-02] Implement create-user dialog.
-- [ ] T031 [FR-03, FR-04, FR-08] Implement create/edit/assign task dialog.
+- [x] T031 [FR-03, FR-04, FR-08] Implement create/edit/assign task dialog.
 - [ ] T032 [FR-05] Implement standard-user dashboard.
 - [ ] T033 [FR-06] Implement task status controls.
 - [ ] T034 [FR-01] Implement logout and window navigation.
