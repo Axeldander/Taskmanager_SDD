@@ -51,8 +51,8 @@
 - [x] T022 [FR-06] Write tests for task status changes and ownership enforcement.
 - [x] T023 [FR-06] Implement task status updates.
 - [x] T024 [FR-07] Implement administrator task monitoring.
-- [ ] T025 [FR-08] Implement task editing, reassignment, and deletion.
-- [ ] T026 [FR-05, FR-06] Test unauthorized task access and modification.
+- [x] T025 [FR-08] Implement task editing, reassignment, and deletion.
+- [x] T026 [FR-05, FR-06] Test unauthorized task access and modification.
 
 **Deliverable:** Tested task-management business logic.
 

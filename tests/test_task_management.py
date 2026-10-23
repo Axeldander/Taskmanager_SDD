@@ -270,3 +270,129 @@ def test_task_title_over_200_characters_is_rejected(environment):
             description="Title is too long",
             assigned_user_id=ids["alice"],
         )
+
+def test_admin_can_edit_task(environment):
+    auth, management, session_factory, ids = environment
+
+    auth.login("admin", "AdminPassword123!")
+
+    task_id = management.create_task(
+        "Original title", "Original description", ids["alice"]
+    )
+
+    management.edit_task(
+        task_id,
+        title="Updated title",
+        description="Updated description",
+    )
+
+    with session_factory() as session:
+        task = session.get(Task, task_id)
+        assert task.title == "Updated title"
+        assert task.description == "Updated description"
+
+
+def test_admin_can_reassign_task(environment):
+    auth, management, session_factory, ids = environment
+
+    auth.login("admin", "AdminPassword123!")
+
+    task_id = management.create_task(
+        "Reassignment task", "Description", ids["alice"]
+    )
+
+    management.reassign_task(task_id, ids["bob"])
+
+    with session_factory() as session:
+        task = session.get(Task, task_id)
+        assert task.assigned_user_id == ids["bob"]
+
+
+def test_admin_can_delete_task(environment):
+    auth, management, session_factory, ids = environment
+
+    auth.login("admin", "AdminPassword123!")
+
+    task_id = management.create_task(
+        "Delete me", "Description", ids["alice"]
+    )
+
+    management.delete_task(task_id)
+
+    with session_factory() as session:
+        assert session.get(Task, task_id) is None
+
+
+def test_standard_user_cannot_edit_task(environment):
+    auth, management, session_factory, ids = environment
+
+    auth.login("admin", "AdminPassword123!")
+    task_id = management.create_task(
+        "Protected task", "Description", ids["alice"]
+    )
+
+    auth.login("alice", "AlicePassword123!")
+
+    with pytest.raises(TaskManagementError):
+        management.edit_task(task_id, title="Unauthorized edit")
+
+    with session_factory() as session:
+        assert session.get(Task, task_id).title == "Protected task"
+
+
+def test_standard_user_cannot_reassign_task(environment):
+    auth, management, session_factory, ids = environment
+
+    auth.login("admin", "AdminPassword123!")
+    task_id = management.create_task(
+        "Protected task", "Description", ids["alice"]
+    )
+
+    auth.login("alice", "AlicePassword123!")
+
+    with pytest.raises(TaskManagementError):
+        management.reassign_task(task_id, ids["bob"])
+
+    with session_factory() as session:
+        assert session.get(Task, task_id).assigned_user_id == ids["alice"]
+
+
+def test_standard_user_cannot_delete_task(environment):
+    auth, management, session_factory, ids = environment
+
+    auth.login("admin", "AdminPassword123!")
+    task_id = management.create_task(
+        "Protected task", "Description", ids["alice"]
+    )
+
+    auth.login("alice", "AlicePassword123!")
+
+    with pytest.raises(TaskManagementError):
+        management.delete_task(task_id)
+
+    with session_factory() as session:
+        assert session.get(Task, task_id) is not None
+
+
+def test_cannot_reassign_task_to_admin(environment):
+    auth, management, session_factory, ids = environment
+
+    auth.login("admin", "AdminPassword123!")
+    task_id = management.create_task(
+        "Assignment task", "Description", ids["alice"]
+    )
+
+    with pytest.raises(TaskManagementError):
+        management.reassign_task(task_id, ids["admin"])
+
+    with session_factory() as session:
+        assert session.get(Task, task_id).assigned_user_id == ids["alice"]
+
+
+def test_cannot_edit_nonexistent_task(environment):
+    auth, management, _, _ = environment
+
+    auth.login("admin", "AdminPassword123!")
+
+    with pytest.raises(TaskManagementError):
+        management.edit_task(999999, title="Missing task")
